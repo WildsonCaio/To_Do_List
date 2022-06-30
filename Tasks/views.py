@@ -1,12 +1,17 @@
-from datetime import date
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Task, User
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 
 @login_required(redirect_field_name='login')
 def index(request):
     tasks = Task.objects.filter(user_id=request.user.id).order_by('-id')
+    paginator = Paginator(tasks, 8)
+    page = request.GET.get('p')
+    tasks = paginator.get_page(page)
     return render(request, 'pages/index.html', {'tasks':tasks})
+
+
 @login_required(redirect_field_name='login')
 def add_task(request):
     if request.method == 'POST':
